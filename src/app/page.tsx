@@ -14,32 +14,26 @@ const services = [
   {
     title: 'General Plumbing',
     description: 'Complete plumbing solutions for residential and commercial properties. From repairs to installations, we handle it all.',
-    icon: '🔧',
   },
   {
     title: 'Gas Fitting',
     description: 'Licensed gas fitters for safe installation, repairs, and maintenance of all gas appliances and systems.',
-    icon: '🔥',
   },
   {
     title: 'Emergency Repairs',
     description: 'Fast response times for urgent plumbing issues. Available when you need us most.',
-    icon: '⚡',
   },
   {
     title: 'Hot Water Systems',
     description: 'Installation and repair of all hot water systems including gas, electric, and solar.',
-    icon: '💧',
   },
   {
     title: 'Blocked Drains',
     description: 'Professional drain cleaning and unblocking using modern equipment and techniques.',
-    icon: '🚿',
   },
   {
     title: 'Leak Detection',
     description: 'Advanced leak detection to find and fix hidden water leaks before they cause damage.',
-    icon: '🔍',
   },
 ]
 
@@ -132,7 +126,9 @@ export default function Home() {
                 key={index}
                 className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100"
               >
-                <div className="text-4xl mb-4">{service.icon}</div>
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <div className="w-6 h-6 bg-primary rounded-full"></div>
+                </div>
                 <h4 className="text-xl font-bold mb-3 text-gray-800">{service.title}</h4>
                 <p className="text-gray-600">{service.description}</p>
               </div>
