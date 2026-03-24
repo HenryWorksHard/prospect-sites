@@ -171,3 +171,158 @@ a:focus-visible {
   background: #2563eb;
   color: white;
 }
+
+/* ========================================
+   MOBILE RESPONSIVE FIXES
+   ======================================== */
+
+/* Prevent horizontal scroll */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Mobile review cards slider */
+.reviews-slider {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 1rem;
+  scroll-behavior: smooth;
+}
+
+.reviews-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.reviews-slider {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.review-card {
+  flex-shrink: 0;
+  scroll-snap-align: start;
+}
+
+@media (max-width: 768px) {
+  .review-card {
+    width: calc(100vw - 3rem);
+    min-width: calc(100vw - 3rem);
+    max-width: 320px;
+  }
+  
+  /* Stop auto-scroll on mobile for manual control */
+  .reviews-slider {
+    animation: none !important;
+  }
+}
+
+/* Scroll indicator dots container */
+.scroll-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.scroll-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d1d5db;
+  transition: all 0.3s ease;
+}
+
+.scroll-indicator.active {
+  background: #2563eb;
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* Mobile navigation */
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  z-index: 100;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.mobile-menu.open {
+  transform: translateX(0);
+}
+
+/* Hamburger button */
+.hamburger {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+}
+
+.hamburger span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: currentColor;
+  transition: all 0.3s ease;
+}
+
+.hamburger.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Touch-friendly buttons */
+@media (max-width: 768px) {
+  button, a[role="button"], .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Stack 3-step process vertically */
+  .step-arrows {
+    display: none;
+  }
+  
+  /* Better spacing on mobile */
+  section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Hero text sizes */
+  h1 {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* Ensure text is readable */
+  p, span {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+}
+
+/* Ensure click-to-call works */
+a[href^="tel:"] {
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(37, 99, 235, 0.2);
+}

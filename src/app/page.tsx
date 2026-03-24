@@ -192,6 +192,9 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [activeReviewIndex, setActiveReviewIndex] = useState(0)
+  const reviewsContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -200,6 +203,27 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // Handle review slider scroll for indicators
+  useEffect(() => {
+    const container = reviewsContainerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft
+      const cardWidth = container.firstElementChild?.clientWidth || 320
+      const index = Math.round(scrollLeft / (cardWidth + 16)) // 16px gap
+      setActiveReviewIndex(Math.min(index, testimonials.length - 1))
+    }
+
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Close mobile menu on navigation
+  const handleNavClick = () => {
+    setMobileMenuOpen(false)
+  }
 
   const handleCall = () => {
     window.location.href = `tel:${businessData.phone.replace(/\s/g, '')}`
@@ -213,9 +237,9 @@ export default function Home() {
           scrolled ? 'bg-white shadow-lg py-3' : 'bg-white/80 backdrop-blur-sm py-4'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-xl text-gray-900">{businessData.name}</span>
+            <span className="font-bold text-lg sm:text-xl text-gray-900 truncate max-w-[200px] sm:max-w-none">{businessData.name}</span>
           </div>
           
           <nav className="hidden md:flex items-center gap-8">
@@ -225,7 +249,7 @@ export default function Home() {
             <a href="#faq" className="text-gray-600 hover:text-primary transition-colors">FAQ</a>
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <a href={`tel:${businessData.phone.replace(/\s/g, '')}`} className="hidden sm:flex items-center gap-2 text-gray-700 hover:text-primary transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -234,42 +258,101 @@ export default function Home() {
             </a>
             <button
               onClick={handleCall}
-              className="bg-primary text-white px-5 py-2.5 rounded-full font-semibold hover:bg-primary-dark transition-all hover:shadow-lg hover:-translate-y-0.5"
+              className="hidden sm:block bg-primary text-white px-5 py-2.5 rounded-full font-semibold hover:bg-primary-dark transition-all hover:shadow-lg hover:-translate-y-0.5"
             >
               Contact
+            </button>
+            
+            {/* Mobile call button */}
+            <a
+              href={`tel:${businessData.phone.replace(/\s/g, '')}`}
+              className="sm:hidden bg-primary text-white p-2.5 rounded-full"
+              aria-label="Call us"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+            </a>
+            
+            {/* Hamburger menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-gray-700"
+              aria-label="Toggle menu"
+            >
+              <div className={`hamburger ${mobileMenuOpen ? 'open' : ''}`}>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
             </button>
           </div>
         </div>
       </header>
 
+      {/* Mobile Menu */}
+      <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="flex flex-col h-full">
+          <div className="flex justify-between items-center p-4 border-b">
+            <span className="font-bold text-lg text-gray-900">{businessData.name}</span>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2 text-gray-700"
+              aria-label="Close menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <nav className="flex flex-col p-4 gap-2">
+            <a href="#services" onClick={handleNavClick} className="py-4 text-lg font-medium text-gray-700 hover:text-primary border-b border-gray-100">Services</a>
+            <a href="#about" onClick={handleNavClick} className="py-4 text-lg font-medium text-gray-700 hover:text-primary border-b border-gray-100">About</a>
+            <a href="#reviews" onClick={handleNavClick} className="py-4 text-lg font-medium text-gray-700 hover:text-primary border-b border-gray-100">Reviews</a>
+            <a href="#faq" onClick={handleNavClick} className="py-4 text-lg font-medium text-gray-700 hover:text-primary border-b border-gray-100">FAQ</a>
+          </nav>
+          <div className="mt-auto p-4 border-t">
+            <a
+              href={`tel:${businessData.phone.replace(/\s/g, '')}`}
+              className="flex items-center justify-center gap-2 bg-primary text-white py-4 rounded-full font-bold text-lg w-full"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              Call {businessData.phone}
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* Hero Section */}
-      <section className="pt-24 pb-12 md:pt-32 md:pb-20 px-6">
+      <section className="pt-20 pb-8 sm:pt-24 sm:pb-12 md:pt-32 md:pb-20 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Left Content */}
             <div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-4 sm:mb-6">
                 Your trusted{' '}
                 <span className="text-primary">plumbing solutions</span>{' '}
                 in {businessData.location}
               </h1>
-              <p className="text-xl text-gray-600 mb-8">
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8">
                 With years of experience, we&apos;ve built a reputation for delivering top-notch plumbing solutions tailored to meet your needs.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <button
-                  onClick={handleCall}
-                  className="bg-primary text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-primary-dark transition-all hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2"
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
+                <a
+                  href={`tel:${businessData.phone.replace(/\s/g, '')}`}
+                  className="bg-primary text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-primary-dark transition-all hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2 min-h-[48px]"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                   Call {businessData.phone}
-                </button>
+                </a>
                 <a
                   href="#services"
-                  className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-full font-bold text-lg hover:border-primary hover:text-primary transition-all flex items-center justify-center"
+                  className="border-2 border-gray-300 text-gray-700 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:border-primary hover:text-primary transition-all flex items-center justify-center min-h-[48px]"
                 >
                   Our Services
                 </a>
@@ -331,47 +414,47 @@ export default function Home() {
       </section>
 
       {/* 3-Step Process */}
-      <section className="py-12 px-6 bg-gray-50">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {/* Step 1: Call */}
             <div className="flex items-start gap-4 group">
-              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
-                <svg className="w-7 h-7 text-primary group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-primary group-hover:scale-110 transition-all">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-primary group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-lg text-gray-900 mb-1">Call us {businessData.phone.split(' ')[0]}</h3>
-                <p className="text-gray-600">We remain available 24/7 for any plumbing emergency.</p>
+                <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-1">Call us {businessData.phone.split(' ')[0]}</h3>
+                <p className="text-gray-600 text-sm sm:text-base">We remain available 24/7 for any plumbing emergency.</p>
               </div>
-              <div className="hidden md:block text-gray-300 text-3xl">→</div>
+              <div className="hidden md:block text-gray-300 text-3xl step-arrows">→</div>
             </div>
 
             {/* Step 2: Evaluate */}
             <div className="flex items-start gap-4 group">
-              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
-                <svg className="w-7 h-7 text-primary group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-primary group-hover:scale-110 transition-all">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-primary group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-lg text-gray-900 mb-1">Expert evaluation</h3>
-                <p className="text-gray-600">Our experts will evaluate the situation and find solutions.</p>
+                <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-1">Expert evaluation</h3>
+                <p className="text-gray-600 text-sm sm:text-base">Our experts will evaluate the situation and find solutions.</p>
               </div>
-              <div className="hidden md:block text-gray-300 text-3xl">→</div>
+              <div className="hidden md:block text-gray-300 text-3xl step-arrows">→</div>
             </div>
 
             {/* Step 3: Arrive */}
             <div className="flex items-start gap-4 group">
-              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
-                <svg className="w-7 h-7 text-primary group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-primary group-hover:scale-110 transition-all">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-primary group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-lg text-gray-900 mb-1">We arrive in 30 minutes</h3>
-                <p className="text-gray-600">Our team will arrive with all the necessary equipment.</p>
+                <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-1">We arrive in 30 minutes</h3>
+                <p className="text-gray-600 text-sm sm:text-base">Our team will arrive with all the necessary equipment.</p>
               </div>
             </div>
           </div>
@@ -502,24 +585,54 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section id="reviews" className="py-20 px-6 bg-gray-50 overflow-hidden">
+      <section id="reviews" className="py-16 sm:py-20 px-4 sm:px-6 bg-gray-50 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <AnimatedHeading className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-8 sm:mb-12">
+            <AnimatedHeading className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               What our customers say
             </AnimatedHeading>
-            <p className="text-lg text-gray-600">
+            <p className="text-base sm:text-lg text-gray-600">
               Our customers are at the heart of everything we do.
             </p>
           </div>
 
-          {/* Scrolling testimonials */}
+          {/* Mobile: Horizontal scroll slider / Desktop: Auto-scroll */}
           <div className="relative">
-            <div className="flex gap-6 animate-scroll">
+            {/* Mobile slider with scroll-snap */}
+            <div 
+              ref={reviewsContainerRef}
+              className="reviews-slider md:flex md:gap-6 md:animate-scroll"
+            >
+              {/* On mobile show original testimonials, on desktop duplicate for infinite scroll */}
+              {testimonials.map((testimonial, i) => (
+                <div
+                  key={`mobile-${i}`}
+                  className="review-card md:hidden flex-shrink-0 w-[calc(100vw-2rem)] max-w-[320px] bg-white rounded-2xl p-5 sm:p-6 shadow-lg"
+                >
+                  <div className="flex gap-1 text-yellow-400 mb-3 sm:mb-4">
+                    {[1,2,3,4,5].map((j) => (
+                      <svg key={j} className="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+                  <p className="text-gray-700 mb-4 text-sm sm:text-base">&ldquo;{testimonial.text}&rdquo;</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                      <span className="text-primary font-bold text-base sm:text-lg">{testimonial.name.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-sm sm:text-base">{testimonial.name}</p>
+                      <p className="text-xs sm:text-sm text-gray-500">Review on {testimonial.source}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {/* Desktop: duplicated for infinite scroll */}
               {[...testimonials, ...testimonials].map((testimonial, i) => (
                 <div
-                  key={i}
-                  className="flex-shrink-0 w-80 bg-white rounded-2xl p-6 shadow-lg"
+                  key={`desktop-${i}`}
+                  className="hidden md:block flex-shrink-0 w-80 bg-white rounded-2xl p-6 shadow-lg"
                 >
                   <div className="flex gap-1 text-yellow-400 mb-4">
                     {[1,2,3,4,5].map((j) => (
@@ -539,6 +652,16 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
+              ))}
+            </div>
+            
+            {/* Mobile scroll indicators */}
+            <div className="scroll-indicators md:hidden">
+              {testimonials.map((_, i) => (
+                <div
+                  key={i}
+                  className={`scroll-indicator ${i === activeReviewIndex ? 'active' : ''}`}
+                />
               ))}
             </div>
           </div>
