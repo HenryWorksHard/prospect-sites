@@ -281,15 +281,9 @@ export default function Home() {
                   {testimonials.slice(0, 4).map((t, i) => (
                     <div
                       key={i}
-                      className="w-10 h-10 rounded-full border-2 border-white overflow-hidden"
+                      className="w-10 h-10 rounded-full border-2 border-white bg-primary/20 flex items-center justify-center"
                     >
-                      <Image
-                        src={t.avatar}
-                        alt={t.name}
-                        width={40}
-                        height={40}
-                        className="object-cover w-full h-full"
-                      />
+                      <span className="text-primary font-bold text-sm">{t.name.charAt(0)}</span>
                     </div>
                   ))}
                 </div>
